@@ -1,1 +1,1 @@
-web: gunicorn -k flask_sockets.worker chat:app
+web: gunicorn --worker-class socketio.sgunicorn.GeventSocketIOWorker --log-file=- server:app
