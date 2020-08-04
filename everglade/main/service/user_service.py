@@ -4,7 +4,7 @@ from typing import List
 import uuid
 import pyrebase
 
-from everglade.main.service.ignore.config import config
+from everglade.main.constants.constants import config
 from everglade.main.model.user_model import UserModel
 
 from everglade.main.service.auth import get_info_from_token

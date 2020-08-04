@@ -33,5 +33,7 @@ initialize_all_controllers(api)
 initialize_sockets(socketio)
 
 if __name__ == "__main__":
-    socketio.run(app, host = "0.0.0.0", port = int(os.environ.get('PORT', 8080)), debug=True) #Run this on the production server
-    #socketio.run(app, debug=True) #Run this for local server
+    if os.environ.get('IS_HEROKU', False):
+        socketio.run(app, host = "0.0.0.0", port = int(os.environ.get('PORT', 8080)), debug=True) #Run this on the production server
+    else:
+        socketio.run(app, debug=True) #Run this for local server

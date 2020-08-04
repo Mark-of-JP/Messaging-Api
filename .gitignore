@@ -191,4 +191,4 @@ typings/
 /.firebaserc
 
 #SHHHH SECRET
-everglade/main/service/ignore
+everglade/main/constants/ignore

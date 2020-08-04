@@ -7,7 +7,7 @@ import uuid
 import pyrebase
 from flask_socketio import emit
 
-from everglade.main.service.ignore.config import config
+from everglade.main.constants.constants import config
 from everglade.main.model.chat_model import ChatModel
 from everglade.main.model.message_model import MessageModel
 
