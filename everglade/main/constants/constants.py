@@ -9,7 +9,7 @@ if os.environ.get('IS_HEROKU', False):
         "type": os.environ.get('CREDENTIALS_TYPE', None),
         "project_id": os.environ.get('CREDENTIALS_PROJECT_ID', None),
         "private_key_id": os.environ.get('CREDENTIALS_PRIVATE_KEY_ID', None),
-        "private_key": os.environ.get('CREDENTIALS_PRIVATE_KEY', None).replace('\\\\n', '\n'),
+        "private_key": os.environ.get('CREDENTIALS_PRIVATE_KEY', None).replace('\\n', '\n'),
         "client_email": os.environ.get('CREDENTIALS_CLIENT_EMAIL', None),
         "client_id": os.environ.get('CREDENTIALS_CLIENT_ID', None),
         "auth_uri": os.environ.get('CREDENTIALS_AUTH_URI', None),
