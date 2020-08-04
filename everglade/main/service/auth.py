@@ -9,28 +9,13 @@ import pyrebase
 import firebase_admin
 from firebase_admin import auth, credentials
 
-from everglade.main.constants.constants import config
+from everglade.main.constants.constants import config, credentials_path
 
-print(os.environ.get('IS_HEROKU', 'UNPOG'))
 print(config)
 fb = pyrebase.initialize_app(config)
 pyre_auth = fb.auth()
 
-with open('everglade/main/service/cred/credentials.json', 'w') as outfile:
-    json.dump({
-    "type": "service_account",
-    "project_id": "f-messaging",
-    "private_key_id": "f",
-    "private_key": "f",
-    "client_email": "f",
-    "client_id": "f",
-    "auth_uri": "f",
-    "token_uri": "f",
-    "auth_provider_x509_cert_url": "f",
-    "client_x509_cert_url": "f"}, outfile)
-
-#cred = credentials.Certificate('everglade/main/service/cred/credentials.json') # Run this for production server
-#cred = credentials.Certificate('everglade/main/service/ignore/credentials.json') # Run this for local server
+cred = credentials.Certificate(credentials_path)
 firebase = firebase_admin.initialize_app()
 
 def authLogin(email: str, password: str) -> Tuple[Dict, int]:
