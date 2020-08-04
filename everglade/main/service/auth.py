@@ -27,19 +27,19 @@ def authLogin(email: str, password: str) -> Tuple[Dict, int]:
         user = pyre_auth.sign_in_with_email_and_password(email, password)
 
         return { "token": user["idToken"] }, 200
-    except:
-        return { "message": "Login Error" }, 400
-        # response_error = error.args[0].response #If this errors then ignore it. Not sure why it says this is an error in the ide. It does not error when you run it.
+    except HTTPError as err:
+        # return { "message": "Login Error" }, 400
+        response_error = error.args[0].response #If this errors then ignore it. Not sure why it says this is an error in the ide. It does not error when you run it.
 
-        # results = {}
-        # results["message"] = response_error.json()['error']['message']
+        results = {}
+        results["message"] = response_error.json()['error']['message']
 
-        # response_code = response_error.status_code
+        response_code = response_error.status_code
 
-        # if results['message'] == "INVALID_PASSWORD":
-        #     response_code = 401
+        if results['message'] == "INVALID_PASSWORD":
+            response_code = 401
 
-        # return results, response_code
+        return results, response_code
 
 def authSighUp(email: str, password: str) -> Tuple[Dict, int]:
     """ Signs up the user using the email and password
@@ -50,26 +50,25 @@ def authSighUp(email: str, password: str) -> Tuple[Dict, int]:
         user = pyre_auth.create_user_with_email_and_password(email, password)
 
         return {"token": user["idToken"], "uid": user['localId']}, 200
-    except:
-        return { "message": "Login Error" }, 400
+    except HTTPError as err:
+        # return { "message": "Login Error" }, 400
         
+        if isinstance(err.args[0], dict):
+            response_error = err.args[0]
 
-        # if isinstance(err.args[0], dict):
-        #     response_error = err.args[0]
+            results = {}
+            results["message"] = response_error['message']
 
-        #     results = {}
-        #     results["message"] = response_error['message']
+            response_code = response_error['status_code']
+        else:
+            response_error = err.args[0].response #If this errors then ignore it. Not sure why it says this is an error in the ide. It does not error when you run it.
 
-        #     response_code = response_error['status_code']
-        # else:
-        #     response_error = err.args[0].response #If this errors then ignore it. Not sure why it says this is an error in the ide. It does not error when you run it.
+            results = {}
+            results["message"] = response_error.json()['error']['message']
 
-        #     results = {}
-        #     results["message"] = response_error.json()['error']['message']
+            response_code = response_error.status_code
 
-        #     response_code = response_error.status_code
-
-        # return results, response_code
+        return results, response_code
 
 def get_info_from_token(token: str) -> Dict:
     """ Takes a token and returns information about the user

@@ -11,6 +11,7 @@ from everglade.main.constants.constants import config
 from everglade.main.model.chat_model import ChatModel
 from everglade.main.model.message_model import MessageModel
 
+from everglade.main.service.socket import emitUserUpdate
 from everglade.main.service.user_service import user_exists, get_user_database, get_user_from_token
 
 fb = pyrebase.initialize_app(config)
@@ -166,7 +167,6 @@ def send_message(chat_uuid: str, message: str, id_token: str) -> Dict:
     db = fb.database()
     result = db.child('messages').update({ message_uuid: message_model.get_raw_info() })
 
-    print(chat_uuid)
     emit('message_sent', { chat_uuid: result }, room=chat_uuid, namespace="/")
 
     return result, 201
@@ -240,6 +240,8 @@ def send_chat_request(chat_id: str, receiver: str, id_token: str) -> Dict:
 
     #Add chat request to user
     db.child('users').child(receiver).child('chat_requests').update({ chat_id: True })
+
+    emitUserUpdate(receiver, "Chat_request_sent", chat_id)
 
     return { 'message': 'Invite sent' }, 201
 

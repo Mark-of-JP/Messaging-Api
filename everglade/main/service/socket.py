@@ -1,3 +1,6 @@
+from __future__ import annotations
+from typing import Any
+
 from flask_socketio import emit, join_room
 
 #You can ignore warnings. Functions are used through their socketio
@@ -19,6 +22,15 @@ def initialize_sockets(socketio):
 
     @socketio.on('join_chats')
     def join_chats(chats):
-        emit('pog', {'data': 'Poggers'}, room="pog")
         for chat_id in chats['chats']:
             join_room(chat_id)
+
+    @socketio.on('connect_user')
+    def join_chats(user):
+        join_room(user['uid'])
+
+def emitChatUpdate(chat_id: str, message: str, payload: Any):
+    pass
+
+def emitUserUpdate(user_id: str, message: str, payload: Any) -> None:
+    emit('user_updated', { "user": user_id, "message": message, "payload": payload}, room=user_id, namespace="/")
