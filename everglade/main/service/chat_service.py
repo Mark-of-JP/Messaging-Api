@@ -11,6 +11,8 @@ from everglade.main.constants.constants import config
 from everglade.main.model.chat_model import ChatModel
 from everglade.main.model.message_model import MessageModel
 
+from everglade.main.constants.error_messages import get_invalid_token_error, get_user_not_found_error, get_chat_not_found_error, get_no_access_to_chat_error
+
 from everglade.main.service.socket import emitUserUpdate
 from everglade.main.service.user_service import user_exists, get_user_database, get_user_from_token
 
@@ -54,7 +56,7 @@ def create_chat(name: str, id_token: str) -> Dict:
     try:
         token_user_firebase_uid = get_user_from_token(id_token)['user_id']
     except:
-        return { "message": "Token has either expired or is invalid" }, 401
+        return get_invalid_token_error()
 
     #Get uid from token
     db = fb.database()
@@ -79,13 +81,13 @@ def get_chat(chat_uuid: str, id_token: str, message_limit: int) -> Dict:
     """
 
     if not chat_exists(chat_uuid):
-        return {"message": "Error: Chat does not exist."}, 404
+        return get_chat_not_found_error()
 
     #Get info from token and validate token
     try:
         token_user_firebase_uid = get_user_from_token(id_token)['user_id']
     except:
-        return { "message": "Token has either expired or is invalid" }, 401
+        return get_invalid_token_error()
 
     #Get uid from token
     db = fb.database()
@@ -93,7 +95,7 @@ def get_chat(chat_uuid: str, id_token: str, message_limit: int) -> Dict:
 
     #Check if user is in the chat
     if not user_has_access(chat_uuid, token_user):
-        return { "message": "The user has no access to the chat" }, 401
+        return get_no_access_to_chat_error()
 
     #Grabbing messages with limit
     messages = []
@@ -115,13 +117,13 @@ def get_simple_chat(chat_uuid: str, id_token: str) -> Dict:
     """
 
     if not chat_exists(chat_uuid):
-        return {"message": "Error: Chat does not exist."}, 404
+        return get_chat_not_found_error()
 
     #Get info from token and validate token
     try:
         get_user_from_token(id_token)['user_id']
     except:
-        return { "message": "Token has either expired or is invalid" }, 401
+        return get_invalid_token_error()
 
     simple_info = {}
 
@@ -140,20 +142,20 @@ def send_message(chat_uuid: str, message: str, id_token: str) -> Dict:
     """
 
     if not chat_exists(chat_uuid):
-        return {"message": "Error: Chat does not exist."}, 404
+        return get_chat_not_found_error()
 
     #Get info from token and validate token
     try:
         token_user_firebase_uid = get_user_from_token(id_token)['user_id']
     except:
-        return { "message": "Token has either expired or is invalid" }, 401
+        return get_invalid_token_error()
 
     #Get uid from token
     db = fb.database()
     token_user = db.child('uids').child(token_user_firebase_uid).get().val()
 
     if not user_exists(token_user):
-        return {"message": "Error: User does not exist."}, 404
+        return get_user_not_found_error()
 
     message_uuid = str(uuid.uuid4().int)
 
@@ -176,13 +178,13 @@ def delete_chat(chat_id: str, id_token: str) -> Dict:
     """
 
     if not chat_exists(chat_id):
-        return {"message": "Error: Chat does not exist."}, 404
+        return get_chat_not_found_error()
 
     #Get info from token and validate token
     try:
         token_user_firebase_uid = get_user_from_token(id_token)['user_id']
     except:
-        return { "message": "Token has either expired or is invalid" }, 401
+        return get_invalid_token_error()
 
     #Get uid from token
     db = fb.database()
@@ -191,7 +193,7 @@ def delete_chat(chat_id: str, id_token: str) -> Dict:
     #Check if user is in the chat
     db = fb.database()
     if not user_has_access(chat_id, token_user):
-        return { "message": "The user has no access to the chat" }, 401
+        return get_no_access_to_chat_error()
 
     #Get chat
     chat_info = db.child('chats').child(chat_id).get().val()
@@ -217,17 +219,17 @@ def send_chat_request(chat_id: str, receiver: str, id_token: str) -> Dict:
     """
 
     if not chat_exists(chat_id):
-        return {"message": "Error: Chat does not exist."}, 404
+        return get_chat_not_found_error()
 
     #Get info from token and validate token
     try:
         token_user_firebase_uid = get_user_from_token(id_token)['user_id']
     except:
-        return { "message": "Token has either expired or is invalid" }, 401
+        return get_invalid_token_error()
 
     #Check if receiver exists
     if not user_exists(receiver):
-        return {"message": "Error: User does not exist."}, 404
+        return get_user_not_found_error()
 
     #Get uid from token
     db = fb.database()
@@ -236,7 +238,7 @@ def send_chat_request(chat_id: str, receiver: str, id_token: str) -> Dict:
     #Check if user is in the chat
     db = fb.database()
     if not user_has_access(chat_id, token_user):
-        return { "message": "The user has no access to the chat" }, 401
+        return get_no_access_to_chat_error()
 
     #Add chat request to user
     db.child('users').child(receiver).child('chat_requests').update({ chat_id: True })
@@ -250,13 +252,13 @@ def accept_chat_request(chat_id: str, id_token: str) -> Dict:
     """
 
     if not chat_exists(chat_id):
-        return {"message": "Error: Chat does not exist."}, 404
+        return get_chat_not_found_error()
 
     #Get info from token and validate token
     try:
         token_user_firebase_uid = get_user_from_token(id_token)['user_id']
     except:
-        return { "message": "Token has either expired or is invalid" }, 401
+        return get_invalid_token_error()
 
     #Get uid from token
     db = fb.database()
@@ -278,13 +280,13 @@ def decline_chat_request(chat_id: str, id_token: str) -> Dict:
     """
 
     if not chat_exists(chat_id):
-        return {"message": "Error: Chat does not exist."}, 404
+        return get_chat_not_found_error()
 
     #Get info from token and validate token
     try:
         token_user_firebase_uid = get_user_from_token(id_token)['user_id']
     except:
-        return { "message": "Token has either expired or is invalid" }, 401
+        return get_invalid_token_error()
 
     #Get uid from token
     db = fb.database()

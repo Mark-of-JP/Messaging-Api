@@ -1,7 +1,7 @@
 from flask import Flask, request, make_response
 from flask_restful import Resource, Api, reqparse
 
-from everglade.main.service.user_service import get_user_token_info, get_user_info, send_fr, accept_fr, decline_fr, set_user_info, delete_user, remove_friend, get_friend_list, get_users_info
+from everglade.main.service.user_service import get_user_token_info, get_user_info, send_fr, accept_fr, decline_fr, set_user_info, delete_user, remove_friend, get_friend_list, get_users_info, get_user_from_display_name
 
 class TokenUser(Resource):
     def get(self):
@@ -45,6 +45,10 @@ class User(Resource):
     
     def delete(self, user_uid):
         return delete_user(user_uid)
+
+class DisplayUser(Resource):
+    def get(self, display_name):
+        return get_user_from_display_name(display_name)
 
 class FriendRequest(Resource):
     def patch(self, user_uid):
@@ -91,5 +95,6 @@ def initialize_user_routes(api):
     api.add_resource(MultipleUser, '/users')
     api.add_resource(TokenUser, '/users/me')
     api.add_resource(User, '/users/<string:user_uid>')
+    api.add_resource(DisplayUser, '/users/<string:display_name>/name')
     api.add_resource(FriendRequest, '/users/<string:user_uid>/friends')
     api.add_resource(FriendsList, '/users/<string:user_uid>/friends/list')

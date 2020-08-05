@@ -11,7 +11,6 @@ from firebase_admin import auth, credentials
 
 from everglade.main.constants.constants import config, credentials_path
 
-print(config)
 fb = pyrebase.initialize_app(config)
 pyre_auth = fb.auth()
 

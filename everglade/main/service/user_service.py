@@ -7,6 +7,8 @@ import pyrebase
 from everglade.main.constants.constants import config
 from everglade.main.model.user_model import UserModel
 
+from everglade.main.constants.error_messages import get_invalid_token_error, get_user_not_found_error
+
 from everglade.main.service.auth import get_info_from_token
 
 def noquote(s):
@@ -59,13 +61,23 @@ def create_user(firebase_uuid: str, display_name: str):
 def get_user(user_uid: str):
     return db.child('users').child(user_uid).get().val()
 
+def get_user_from_display_name(display_name: str):
+    """ Obtains all the information stored in the user's database from the user's display name and returns it
+    """
+    db = fb.database()
+
+    try:
+        return db.child("users").order_by_child('display_name').equal_to(display_name).get().val(), 200
+    except:
+        return get_user_not_found_error()
+
 def get_user_database(user_uid: str):
     try:
         if not user_exists(user_uid):
             raise "unpog"
         result = db.child('users').child(user_uid)
     except:
-        return {"message": "Error: User does not exist."}, 404
+        return get_user_not_found_error()
 
     return result, 200
 
@@ -76,7 +88,7 @@ def get_user_info(user_uid: str, auth_token: str):
     try:
         get_user_from_token(auth_token)['user_id']
     except:
-        return { "message": "Token has either expired or is invalid" }, 401
+        return get_invalid_token_error()
     
     #Get user's database
     database, status = get_user_database(user_uid)
@@ -98,7 +110,7 @@ def get_users_info(user_uids: List[str], auth_token: str):
     try:
         get_user_from_token(auth_token)['user_id']
     except:
-        return { "message": "Token has either expired or is invalid" }, 401
+        return get_invalid_token_error()
 
     users_info = {}
 
@@ -164,7 +176,7 @@ def send_fr(sender: str, receiver: str):
     database, status = get_user_database(receiver)
     
     if not user_exists(sender):
-        return {"message": "Error: Sender user does not exist."}, 404
+        return get_user_not_found_error("Error: Sender user does not exist.")
 
     if 399 < status < 500:
         return database, status

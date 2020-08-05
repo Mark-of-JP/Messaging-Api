@@ -17,8 +17,6 @@ if os.environ.get('IS_HEROKU', False):
         "auth_provider_x509_cert_url": os.environ.get('CREDENTIALS_AUTH_PROVIDER_X509_CERT_URL', None),
         "client_x509_cert_url": os.environ.get('CREDENTIALS_CLIENT_X509_CERT_URL', None)}
 
-        print('POOGERINO')
-        print(cred)
         json.dump(cred, outfile)
 
     credentials_path = 'everglade/main/constants/cred/credentials.json'

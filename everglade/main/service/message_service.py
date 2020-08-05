@@ -9,6 +9,8 @@ from everglade.main.constants.constants import config
 from everglade.main.model.chat_model import ChatModel
 from everglade.main.model.message_model import MessageModel
 
+from everglade.main.constants.error_messages import get_user_not_found_error, get_invalid_token_error
+
 from everglade.main.service.user_service import user_exists, get_user_database, get_user_from_token
 from everglade.main.service.chat_service import chat_exists
 
@@ -34,7 +36,7 @@ def delete_message(message_id: str, id_token: str) -> Dict:
     """
 
     if not message_exists(message_id):
-        return {'message': 'Error: Message does not exist.'}, 401
+        return get_user_not_found_error()
 
     db = fb.database()
     message_info = db.child('messages').child(message_id).get().val()
@@ -44,7 +46,7 @@ def delete_message(message_id: str, id_token: str) -> Dict:
     try:
         author_firebase_uid = get_user_from_token(id_token)['user_id']
     except:
-        return { "message": "Token has either expired or is invalid" }, 401
+        return get_invalid_token_error()
 
     #Get uid from token
     db = fb.database()
@@ -77,7 +79,7 @@ def edit_message(message_id: str, edit: str, id_token: str) -> Dict:
     try:
         author_firebase_uid = get_user_from_token(id_token)['user_id']
     except:
-        return { "message": "Token has either expired or is invalid" }, 401
+        return get_invalid_token_error()
 
     #Get uid from token
     db = fb.database()
@@ -88,6 +90,5 @@ def edit_message(message_id: str, edit: str, id_token: str) -> Dict:
 
     #Editting the message
     message.message = edit
-    db.child('messages').update({ message_id: message.get_raw_info() })
 
-    return { 'message': 'Message has been editted' }, 200
+    return db.child('messages').update({ message_id: message.get_raw_info() }), 200
