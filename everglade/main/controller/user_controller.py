@@ -1,6 +1,8 @@
 from flask import Flask, request, make_response
 from flask_restful import Resource, Api, reqparse
 
+from everglade.main.constants.error_messages import get_missing_token_error
+
 from everglade.main.service.user_service import get_user_token_info, get_user_info, send_fr, accept_fr, decline_fr, set_user_info, delete_user, remove_friend, get_friend_list, get_users_info, get_user_from_display_name
 
 class TokenUser(Resource):
@@ -8,9 +10,26 @@ class TokenUser(Resource):
         try:
             auth_token = request.headers['EVERGLADE-USER-TOKEN']
         except:
-            return { 'message': "EVERGLADE-USER-TOKEN header is missing" }, 401
+            return get_missing_token_error()
 
         return get_user_token_info(auth_token)
+
+    def patch(self):
+        try:
+            auth_token = request.headers['EVERGLADE-USER-TOKEN']
+        except:
+            return get_missing_token_error()
+            
+        parser = reqparse.RequestParser()
+        parser.add_argument('new_display_name', type=str)
+        parser.add_argument('description', type=str)
+        args = parser.parse_args()
+        new_display_name, description = args['new_display_name'], args['description']
+
+        return set_user_info(auth_token, new_display_name, description)
+
+    def delete(self, user_uid):
+        return delete_user(user_uid)
 
 
 class MultipleUser(Resource):
@@ -18,7 +37,7 @@ class MultipleUser(Resource):
         try:
             auth_token = request.headers['EVERGLADE-USER-TOKEN']
         except:
-            return { 'message': "EVERGLADE-USER-TOKEN header is missing" }, 401
+            return get_missing_token_error()
 
         parser = reqparse.RequestParser()
         #Users is now a list of strings
@@ -27,24 +46,11 @@ class MultipleUser(Resource):
 
         return get_users_info(args['users'], auth_token)
 
-
 class User(Resource):
     def get(self, user_uid):
         auth_token = request.headers['EVERGLADE-USER-TOKEN']
 
         return get_user_info(user_uid, auth_token)
-    
-    def patch(self, user_uid):
-        parser = reqparse.RequestParser()
-        parser.add_argument('new_display_name', type=str)
-        parser.add_argument('description', type=str)
-        args = parser.parse_args()
-        new_display_name, description = args['new_display_name'], args['description']
-
-        return set_user_info(user_uid, new_display_name, description)
-    
-    def delete(self, user_uid):
-        return delete_user(user_uid)
 
 class DisplayUser(Resource):
     def get(self, display_name):

@@ -145,24 +145,44 @@ def get_user_token_info(id_token: str):
 
     return get_user_info(token_user, id_token)
 
-def set_user_info(user_uid: str, new_display_name: str, description: str):
+def set_user_info(id_token: str, new_display_name: str, description: str):
     if display_exists(new_display_name):
         return {"message": "Error: This username has been taken."}, 409
 
-    database, status = get_user_database(user_uid)
+    #Get info from token and validate token
+    try:
+        token_user_firebase_uid = get_user_from_token(id_token)['user_id']
+    except:
+        return get_invalid_token_error()
+
+    #Get uid from token
+    db = fb.database()
+    token_user = db.child('uids').child(token_user_firebase_uid).get().val()
+
+    database, status = get_user_database(token_user)
 
     if status < 500 and status > 399:
         return database, status
 
     database.update({"description": description})
-    database, status = get_user_database(user_uid)
+    database, status = get_user_database(token_user)
     database.update({"display_name": new_display_name})
 
     return {}, 200
 
-def delete_user(user_uid: str):
+def delete_user(id_token: str):
 
-    database, status = get_user_database(user_uid)
+    #Get info from token and validate token
+    try:
+        token_user_firebase_uid = get_user_from_token(id_token)['user_id']
+    except:
+        return get_invalid_token_error()
+
+    #Get uid from token
+    db = fb.database()
+    token_user = db.child('uids').child(token_user_firebase_uid).get().val()
+
+    database, status = get_user_database(token_user)
 
     if 399 < status < 500:
         return database, status

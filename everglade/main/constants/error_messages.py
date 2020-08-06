@@ -1,6 +1,9 @@
 from __future__ import annotations
 from typing import Union, Dict, Tuple
 
+def get_missing_token_error() -> Tuple[Dict, int]:
+    return { 'message': "EVERGLADE-USER-TOKEN header is missing", "error": "MISSING_TOKEN" }, 401
+
 def get_invalid_token_error() -> Tuple[Dict, int]:
     return { "message": "Token has either expired or is invalid", "error": "INVALID_TOKEN"}, 401
 
