@@ -75,8 +75,9 @@ class FriendRequest(Resource):
 
 class FriendsList(Resource):
     def get(self, user_uid):
-        
-        return get_friend_list(user_uid)
+        auth_token = request.headers['EVERGLADE-USER-TOKEN']
+
+        return get_friend_list(user_uid, auth_token)
 
     def patch(self, user_uid):
         parser = reqparse.RequestParser()

@@ -191,7 +191,17 @@ def delete_user(id_token: str):
     return {}, 200
 
 
-def send_fr(sender: str, receiver: str):
+def send_fr(id_token: str, receiver: str):
+
+    #Get info from token and validate token
+    try:
+        token_user_firebase_uid = get_user_from_token(id_token)['user_id']
+    except:
+        return get_invalid_token_error()
+
+    #Get uid from token
+    db = fb.database()
+    sender = db.child('uids').child(token_user_firebase_uid).get().val()
 
     database, status = get_user_database(receiver)
     
@@ -205,8 +215,17 @@ def send_fr(sender: str, receiver: str):
     
     return {}, 201
 
-def accept_fr(user_uid: str, request_id: str):
+def accept_fr(id_token: str, request_id: str):
 
+     #Get info from token and validate token
+    try:
+        token_user_firebase_uid = get_user_from_token(id_token)['user_id']
+    except:
+        return get_invalid_token_error()
+
+    #Get uid from token
+    db = fb.database()
+    user_uid = db.child('uids').child(token_user_firebase_uid).get().val()
     database, status = get_user_database(user_uid)
 
     if 399 < status < 500:
@@ -236,8 +255,16 @@ def accept_fr(user_uid: str, request_id: str):
 
     return {}, 200
 
-def decline_fr(user_uid: str, request_id: str):
-    
+def decline_fr(id_token: str, request_id: str):
+    #Get info from token and validate token
+    try:
+        token_user_firebase_uid = get_user_from_token(id_token)['user_id']
+    except:
+        return get_invalid_token_error()
+
+    #Get uid from token
+    db = fb.database()
+    user_uid = db.child('uids').child(token_user_firebase_uid).get().val()
     database, status = get_user_database(user_uid)
 
     if 399 < status < 500:
@@ -261,8 +288,16 @@ def decline_fr(user_uid: str, request_id: str):
 
     return {}, 200
 
-def remove_friend(user_uid: str, friend_id: str):
-    
+def remove_friend(id_token: str, friend_id: str):
+    #Get info from token and validate token
+    try:
+        token_user_firebase_uid = get_user_from_token(id_token)['user_id']
+    except:
+        return get_invalid_token_error()
+
+    #Get uid from token
+    db = fb.database()
+    user_uid = db.child('uids').child(token_user_firebase_uid).get().val() 
     database, status = get_user_database(user_uid)
 
     if 399 < status < 500:
@@ -284,8 +319,13 @@ def remove_friend(user_uid: str, friend_id: str):
 
     return {}, 200
 
-def get_friend_list(user_uid: str):
-
+def get_friend_list(user_uid: str, auth_token: str):
+    #Get info from token and validate token
+    try:
+        get_user_from_token(auth_token)['user_id']
+    except:
+        return get_invalid_token_error()
+        
     database, status = get_user_database(user_uid)
 
     if 399 < status < 500:
