@@ -90,5 +90,6 @@ def edit_message(message_id: str, edit: str, id_token: str) -> Dict:
 
     #Editting the message
     message.message = edit
+    message.is_editted = True
 
     return db.child('messages').update({ message_id: message.get_raw_info() }), 200
