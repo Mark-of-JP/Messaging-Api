@@ -147,9 +147,6 @@ def get_user_token_info(id_token: str):
 
 def set_user_info(id_token: str, new_display_name: str, description: str):
 
-    if display_exists(new_display_name):
-        return {"message": "Error: This username has been taken.", "error": "DISPLAY_NAME_TAKEN"}, 409
-
     #Get info from token and validate token
     try:
         token_user_firebase_uid = get_user_from_token(id_token)['user_id']
@@ -165,6 +162,10 @@ def set_user_info(id_token: str, new_display_name: str, description: str):
     if status < 500 and status > 399:
         return database, status
 
+    if database.child('display_name').get().val() != new_display_name and display_exists(new_display_name):
+        return {"message": "Error: This username has been taken.", "error": "DISPLAY_NAME_TAKEN"}, 409
+
+    database, status = get_user_database(token_user)
     database.update({"description": description})
     database, status = get_user_database(token_user)
     database.update({"display_name": new_display_name})
