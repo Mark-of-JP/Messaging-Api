@@ -104,7 +104,13 @@ def get_chat(chat_uuid: str, id_token: str, message_limit: int) -> Dict:
         for message_id in list(messages_ordered_dict.keys()):
             raw_message = db.child('messages').child(message_id).get().val()
             message = MessageModel.from_ordered_dict(query_info=raw_message)
-            messages.append(message.get_raw_info())
+
+            formatted_massage = message.get_raw_info()
+            
+            author_display_name = db.child('users').child(message.author).child("display_name").get().val()
+            formatted_massage["author_display_name"] = author_display_name
+
+            messages.append(formatted_massage)
 
     #Format chat info
     db = fb.database()
@@ -301,6 +307,36 @@ def decline_chat_request(chat_id: str, id_token: str) -> Dict:
 
     return { 'message': 'User has declined' }, 200
 
+def leave_chat(chat_id: str, id_token: str) -> Dict:
+    """ Leave a chat
+    """
+
+    if not chat_exists(chat_id):
+        return get_chat_not_found_error()
+
+    #Get info from token and validate token
+    try:
+        token_user_firebase_uid = get_user_from_token(id_token)['user_id']
+    except:
+        return get_invalid_token_error()
+
+    #Check if receiver exists
+    if not user_exists(receiver):
+        return get_user_not_found_error()
+
+    #Get uid from token
+    db = fb.database()
+    token_user = db.child('uids').child(token_user_firebase_uid).get().val()
+
+    #Check if user is in the chat
+    db = fb.database()
+    if not user_has_access(chat_id, token_user):
+        return get_no_access_to_chat_error()
+
+    db = fb.database()
+    db.child('users').child(token_user).child('chats').child(chat_id).remove()
+    db = fb.database()
+    db.child('chats').child(chat_id).child('members').child(token_user).remove()
 
 
     

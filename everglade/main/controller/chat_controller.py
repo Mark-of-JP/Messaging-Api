@@ -3,7 +3,7 @@ from flask_restful import Resource, Api, reqparse
 
 from everglade.main.constants.error_messages import get_missing_token_error
 
-from everglade.main.service.chat_service import create_chat, send_message, get_chat, get_simple_chat, delete_chat, send_chat_request, accept_chat_request, decline_chat_request
+from everglade.main.service.chat_service import create_chat, send_message, get_chat, get_simple_chat, delete_chat, send_chat_request, accept_chat_request, decline_chat_request, leave_chat
 from everglade.main.service.message_service import delete_message, edit_message
 
 class CreateChat(Resource):
@@ -111,6 +111,15 @@ class Decline(Resource):
 
         return decline_chat_request(chat_id, id_token)
 
+class Leave(Resource):
+    def delete(self, chat_id):
+        try:
+            id_token = request.headers['EVERGLADE-USER-TOKEN']
+        except:
+            return get_missing_token_error()
+
+        return leave_chat(chat_id, id_token)
+
 
 #Initializes the routes
 def initialize_chat_routes(api):
@@ -120,4 +129,5 @@ def initialize_chat_routes(api):
     api.add_resource(Invite, '/chat/<string:chat_id>/invite')
     api.add_resource(Accept, '/chat/<string:chat_id>/accept')
     api.add_resource(Decline, '/chat/<string:chat_id>/decline')
+    api.add_resource(Leave, '/chat/<string:chat_id>/leave')
     api.add_resource(Message, '/message/<string:message_id>')
