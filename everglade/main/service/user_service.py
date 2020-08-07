@@ -146,8 +146,9 @@ def get_user_token_info(id_token: str):
     return get_user_info(token_user, id_token)
 
 def set_user_info(id_token: str, new_display_name: str, description: str):
+
     if display_exists(new_display_name):
-        return {"message": "Error: This username has been taken."}, 409
+        return {"message": "Error: This username has been taken.", "error": "DISPLAY_NAME_TAKEN"}, 409
 
     #Get info from token and validate token
     try:
@@ -168,7 +169,12 @@ def set_user_info(id_token: str, new_display_name: str, description: str):
     database, status = get_user_database(token_user)
     database.update({"display_name": new_display_name})
 
-    return {}, 200
+    database, status = get_user_database(token_user)
+    
+    #Formats user values and fills missing values
+    user_model = UserModel.from_database(database.get().val())
+    
+    return user_model.get_raw_info(), 200
 
 def delete_user(id_token: str):
 
