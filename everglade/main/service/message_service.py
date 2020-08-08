@@ -61,8 +61,16 @@ def delete_message(message_id: str, id_token: str) -> Dict:
     if chat_exists(message.chat_id):
         db.child('chats').child(message.chat_id).child('messages').child(message_id).remove()
 
+    #Gather message information
+    db = fb.database()
+    message_info = db.child('messages').child(message_id).get().val()
+    message = MessageModel.from_ordered_dict(message_info)
+
     #Delete message from messages
     db.child('messages').child(message_id).remove()
+
+    #Inform websockets
+    emitChatUpdate(message.chat_id, 'MESSAGE_DELETE', {})
 
     return { 'message': 'Message deleted' }, 200
 
