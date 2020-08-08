@@ -14,6 +14,8 @@ from everglade.main.constants.error_messages import get_user_not_found_error, ge
 from everglade.main.service.user_service import user_exists, get_user_database, get_user_from_token
 from everglade.main.service.chat_service import chat_exists
 
+from everglade.main.service.socket import emitChatUpdate
+
 fb = pyrebase.initialize_app(config)
 db = fb.database()
 
@@ -92,4 +94,7 @@ def edit_message(message_id: str, edit: str, id_token: str) -> Dict:
     message.message = edit
     message.is_editted = True
 
-    return db.child('messages').update({ message_id: message.get_raw_info() }), 200
+    result = { message_id: message.get_raw_info() }
+    emitChatUpdate(message.chat_id, 'MESSAGE_UPDATE', result)
+
+    return db.child('messages').update(result), 200
