@@ -13,7 +13,7 @@ from everglade.main.model.message_model import MessageModel
 
 from everglade.main.constants.error_messages import get_invalid_token_error, get_user_not_found_error, get_chat_not_found_error, get_no_access_to_chat_error
 
-from everglade.main.service.socket import emitUserUpdate
+from everglade.main.service.socket import emitUserUpdate, emitChatUpdate
 from everglade.main.service.user_service import user_exists, get_user_database, get_user_from_token
 
 fb = pyrebase.initialize_app(config)
@@ -175,7 +175,8 @@ def send_message(chat_uuid: str, message: str, id_token: str) -> Dict:
     db = fb.database()
     result = db.child('messages').update({ message_uuid: message_model.get_raw_info() })
 
-    emit('message_sent', { chat_uuid: result }, room=chat_uuid, namespace="/")
+    #Notifying Websockets
+    emitChatUpdate(chat_uuid, "MESSAGE_SENT", result)
 
     return result, 201
 
@@ -205,6 +206,10 @@ def delete_chat(chat_id: str, id_token: str) -> Dict:
     chat_info = db.child('chats').child(chat_id).get().val()
     chat = ChatModel.from_ordered_dict(chat_id, chat_info)
     
+    #Delete chat
+    db = fb.database()
+    db.child('chats').child(chat_id).remove()    
+
     #Delete members
     for member in chat.members:
         db.child('users').child(member).child('chats').child(chat_id).remove()
@@ -213,10 +218,9 @@ def delete_chat(chat_id: str, id_token: str) -> Dict:
     if chat.messages is not None:
         for message in chat.messages.keys():
             db.child('messages').child(message).remove()
-    
-    #Delete chat
-    db = fb.database()
-    db.child('chats').child(chat_id).remove()    
+
+    #Notifying websockets
+    emitChatUpdate(chat_id, 'CHAT_DELETED', {})
 
     return { 'message': 'Chat deleted' }, 200
 
@@ -249,6 +253,7 @@ def send_chat_request(chat_id: str, receiver: str, id_token: str) -> Dict:
     #Add chat request to user
     db.child('users').child(receiver).child('chat_requests').update({ chat_id: True })
 
+    #Notifying Websockets
     emitUserUpdate(receiver, "Chat_request_sent", chat_id)
 
     return { 'message': 'Invite sent' }, 201
@@ -337,9 +342,3 @@ def leave_chat(chat_id: str, id_token: str) -> Dict:
     db.child('users').child(token_user).child('chats').child(chat_id).remove()
     db = fb.database()
     db.child('chats').child(chat_id).child('members').child(token_user).remove()
-
-
-    
-
-
-    

@@ -28,7 +28,12 @@ class TokenUser(Resource):
 
         return set_user_info(auth_token, new_display_name, description)
 
-    def delete(self, user_uid):
+    def delete(self):
+        try:
+            auth_token = request.headers['EVERGLADE-USER-TOKEN']
+        except:
+            return get_missing_token_error()
+            
         return delete_user(user_uid)
 
 

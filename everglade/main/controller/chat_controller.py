@@ -93,7 +93,7 @@ class Invite(Resource):
 
         return send_chat_request(chat_id, args['receiver'], id_token)
 
-class Accept(Resource):
+class Request(Resource):
     def put(self, chat_id):
         try:
             id_token = request.headers['EVERGLADE-USER-TOKEN']
@@ -102,8 +102,7 @@ class Accept(Resource):
 
         return accept_chat_request(chat_id, id_token)
 
-class Decline(Resource):
-    def put(self, chat_id):
+    def delete(self, chat_id):
         try:
             id_token = request.headers['EVERGLADE-USER-TOKEN']
         except:
@@ -127,7 +126,6 @@ def initialize_chat_routes(api):
     api.add_resource(Chat, '/chat/<string:chat_id>')
     api.add_resource(SimpleChat, '/chat/<string:chat_id>/simple')
     api.add_resource(Invite, '/chat/<string:chat_id>/invite')
-    api.add_resource(Accept, '/chat/<string:chat_id>/accept')
-    api.add_resource(Decline, '/chat/<string:chat_id>/decline')
+    api.add_resource(Request, '/chat/<string:chat_id>/request')
     api.add_resource(Leave, '/chat/<string:chat_id>/leave')
     api.add_resource(Message, '/message/<string:message_id>')
