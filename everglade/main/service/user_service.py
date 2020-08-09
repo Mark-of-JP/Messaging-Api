@@ -144,7 +144,7 @@ def get_user_token_info(id_token: str):
 
     return get_user_info(token_user, id_token)
 
-def set_user_info(id_token: str, new_display_name: str, description: str):
+def set_user_info(id_token: str, new_display_name: str, description: str, picture: str):
 
     #Get info from token and validate token
     try:
@@ -168,6 +168,8 @@ def set_user_info(id_token: str, new_display_name: str, description: str):
     database.update({"description": description})
     database, status = get_user_database(token_user)
     database.update({"display_name": new_display_name})
+    database, status = get_user_database(token_user)
+    database.update({"picture": picture})
 
     database, status = get_user_database(token_user)
     

@@ -3,10 +3,11 @@ from typing import Dict
 
 class UserModel:
     
-    def __init__(self, display_name, uid, friends = {}, chats = {}, friend_requests = {}, chat_requests = {}, description = ""):
+    def __init__(self, display_name, uid, friends = {}, chats = {}, friend_requests = {}, chat_requests = {}, description = "", picture = "default"):
         self.uid = uid
         self.display_name = display_name
         self.description = description
+        self.picture = picture
 
         self.friends = friends
         self.chats = chats
@@ -16,7 +17,7 @@ class UserModel:
 
     @classmethod
     def from_database(cls, data: Dict):
-        user = UserModel(data['display_name'], data['uid'], data.get('friends_list', {}), data.get('chats', {}), data.get('friend_requests', {}), data.get('chat_requests', {}), data.get('description', ""))
+        user = UserModel(data['display_name'], data['uid'], data.get('friends_list', {}), data.get('chats', {}), data.get('friend_requests', {}), data.get('chat_requests', {}), data.get('description', ""), data.get("picture", "default"))
 
         return user
 
@@ -24,6 +25,7 @@ class UserModel:
         info = {
             "display_name": self.display_name,
             "description": self.description,
+            "picture": self.picture,
             "uid": self.uid,
             
             "chats": self.chats,

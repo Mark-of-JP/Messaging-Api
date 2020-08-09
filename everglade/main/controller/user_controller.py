@@ -23,10 +23,11 @@ class TokenUser(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('new_display_name', type=str)
         parser.add_argument('description', type=str)
+        parser.add_argument('picture', type=str)
         args = parser.parse_args()
         new_display_name, description = args['new_display_name'], args['description']
 
-        return set_user_info(auth_token, new_display_name, description)
+        return set_user_info(auth_token, new_display_name, description, args['picture'])
 
     def delete(self):
         try:
