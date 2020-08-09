@@ -36,7 +36,6 @@ class TokenUser(Resource):
             
         return delete_user(user_uid)
 
-
 class MultipleUser(Resource):
     def post(self):
         try:
@@ -61,44 +60,48 @@ class DisplayUser(Resource):
     def get(self, display_name):
         return get_user_from_display_name(display_name)
 
-class FriendRequest(Resource):
-    def patch(self, user_uid):
-        parser = reqparse.RequestParser()
-        parser.add_argument('receiver', type=str)
-        args = parser.parse_args()
-        receiver = args['receiver']
+class FriendInvite(Resource):
+    def put(self, user_uid):
+        try:
+            auth_token = request.headers['EVERGLADE-USER-TOKEN']
+        except:
+            return get_missing_token_error()
 
-        return send_fr(user_uid, receiver)
+        return send_fr(auth_token, user_uid)
+
+class FriendRequest(Resource):
+    def put(self, user_uid):
+        try:
+            auth_token = request.headers['EVERGLADE-USER-TOKEN']
+        except:
+            return get_missing_token_error()
+
+        return accept_fr(auth_token, user_uid)
 
     def delete(self, user_uid):
-        parser = reqparse.RequestParser()
-        parser.add_argument('request_id', type=str)
-        args = parser.parse_args()
-        request_id = args['request_id']
+        try:
+            auth_token = request.headers['EVERGLADE-USER-TOKEN']
+        except:
+            return get_missing_token_error()
 
-        return decline_fr(user_uid, request_id)
+        return decline_fr(auth_token, user_uid)
 
 class FriendsList(Resource):
     def get(self, user_uid):
-        auth_token = request.headers['EVERGLADE-USER-TOKEN']
+        try:
+            auth_token = request.headers['EVERGLADE-USER-TOKEN']
+        except:
+            return get_missing_token_error()
 
         return get_friend_list(user_uid, auth_token)
 
-    def patch(self, user_uid):
-        parser = reqparse.RequestParser()
-        parser.add_argument('request_id', type=str)
-        args = parser.parse_args()
-        request_id = args['request_id']
-
-        return accept_fr(user_uid, request_id)
-
     def delete(self, user_uid):
-        parser = reqparse.RequestParser()
-        parser.add_argument('friend_id', type=str)
-        args = parser.parse_args()
-        friend_id = args['friend_id']
+        try:
+            auth_token = request.headers['EVERGLADE-USER-TOKEN']
+        except:
+            return get_missing_token_error()
 
-        return remove_friend(user_uid, friend_id)
+        return remove_friend(auth_token, user_uid)
     
 
     
@@ -107,6 +110,8 @@ def initialize_user_routes(api):
     api.add_resource(MultipleUser, '/users')
     api.add_resource(TokenUser, '/users/me')
     api.add_resource(User, '/users/<string:user_uid>')
+    api.add_resource(FriendInvite, '/users/<string:user_uid>/invite')
+    api.add_resource(FriendRequest, '/users/<string:user_uid>/request')
+    api.add_resource(FriendsList, '/users/<string:user_uid>/friends')
+
     api.add_resource(DisplayUser, '/users/<string:display_name>/name')
-    api.add_resource(FriendRequest, '/users/<string:user_uid>/friends')
-    api.add_resource(FriendsList, '/users/<string:user_uid>/friends/list')

@@ -29,8 +29,12 @@ def initialize_sockets(socketio):
     def join_chats(user):
         join_room(user['uid'])
 
-def emitChatUpdate(chat_id: str, message: str, payload: Any):
+def emitChatUpdate(chat_id: str, message: str, payload: Any) -> None:
+    """ Emits the chat_updated event to members of chat
+    """
     emit('chat_updated', { "chat": chat_id, "message": message, "payload": payload }, room=chat_id, namespace="/")
 
 def emitUserUpdate(user_id: str, message: str, payload: Any) -> None:
+    """ Emits the user_updated event to the user
+    """
     emit('user_updated', { "user": user_id, "message": message, "payload": payload }, room=user_id, namespace="/")

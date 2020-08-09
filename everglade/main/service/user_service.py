@@ -10,6 +10,7 @@ from everglade.main.model.user_model import UserModel
 from everglade.main.constants.error_messages import get_invalid_token_error, get_user_not_found_error
 
 from everglade.main.service.auth import get_info_from_token
+from everglade.main.service.socket import emitUserUpdate
 
 def noquote(s):
     return s
@@ -39,12 +40,10 @@ def user_exists(user_uid: str) -> bool:
         return False
 
 def on_friends_list(user_uid: str) -> bool:
-    database, status = get_user_database(user_uid)
     try:
-        if 399 < status < 500:
-            raise "Not on friends list"
+        if database.child('friends_list').child(user_uid).get().val() is None:
+            raise 'Not on friends list'
 
-        database.child('friends_list').child(user_uid).get().val()
         return True
     except:
         return False
@@ -218,7 +217,10 @@ def send_fr(id_token: str, receiver: str):
     if 399 < status < 500:
         return database, status
     
-    database.child('friend_requests').update({sender: True})
+    result = database.child('friend_requests').update({sender: True})
+
+    #Notify Websockets
+    emitUserUpdate(receiver, 'SENT_FRIEND_REQUEST', result)
     
     return {}, 201
 
@@ -257,6 +259,9 @@ def accept_fr(id_token: str, request_id: str):
     database.child('friends_list').update({user_uid: True})
     database, status = get_user_database(user_uid)
     database.child('friend_requests').child(request_id).remove()
+
+    #Notify Websockets
+    emitUserUpdate(request_id, 'FRIEND_REQUEST_ACCEPTED', {})
 
     #TODO check user isnt already on friends list
 
@@ -323,6 +328,8 @@ def remove_friend(id_token: str, friend_id: str):
     database.child('friends_list').child(friend_id).remove()
     database, status = get_user_database(friend_id)
     database.child('friends_list').child(user_uid).remove()
+
+    emitUserUpdate(friend_id, 'FRIEND_REMOVED', {})
 
     return {}, 200
 
