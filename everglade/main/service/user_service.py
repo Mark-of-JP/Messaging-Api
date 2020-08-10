@@ -4,7 +4,7 @@ from typing import List
 import uuid
 import pyrebase
 
-from everglade.main.constants.constants import config
+from everglade.main.constants.constants import config, get_default_chat_uid
 from everglade.main.model.user_model import UserModel
 
 from everglade.main.constants.error_messages import get_invalid_token_error, get_user_not_found_error
@@ -55,7 +55,10 @@ def create_user(firebase_uuid: str, display_name: str):
     db.child('uids').update({ firebase_uuid: uid })
 
     user = UserModel(display_name, uid)
+    user.chats[get_default_chat_uid()] = True
     db.child('users').update( {uid: user.get_raw_info()} )
+
+    db.child('chats').child(get_default_chat_uid()).child('members').update({ uid: True })
 
 def get_user(user_uid: str):
     return db.child('users').child(user_uid).get().val()

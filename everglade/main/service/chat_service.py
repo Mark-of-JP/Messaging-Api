@@ -7,7 +7,7 @@ import uuid
 import pyrebase
 from flask_socketio import emit
 
-from everglade.main.constants.constants import config
+from everglade.main.constants.constants import config, get_default_chat_uid
 from everglade.main.model.chat_model import ChatModel
 from everglade.main.model.message_model import MessageModel
 
@@ -183,6 +183,9 @@ def send_message(chat_uuid: str, message: str, id_token: str) -> Dict:
 def delete_chat(chat_id: str, id_token: str) -> Dict:
     """ Deletes the chat if user is a member of the chat
     """
+
+    if chat_id == get_default_chat_uid():
+        return { "message": "You can not delete the default chat", "error": "CANT_DELETE_CHAT" }, 401
 
     if not chat_exists(chat_id):
         return get_chat_not_found_error()

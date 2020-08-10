@@ -23,3 +23,6 @@ if os.environ.get('IS_HEROKU', False):
 else:
     from everglade.main.constants.ignore.config import config
     credentials_path = 'everglade/main/constants/ignore/credentials.json'
+
+def get_default_chat_uid():
+    return "33919108581430458156722149495074764608"
