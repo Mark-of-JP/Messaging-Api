@@ -25,4 +25,4 @@ else:
     credentials_path = 'everglade/main/constants/ignore/credentials.json'
 
 def get_default_chat_uid():
-    return "33919108581430458156722149495074764608"
+    return "121604140557614822169560676967875811423"
