@@ -26,7 +26,7 @@ def authLogin(email: str, password: str) -> Tuple[Dict, int]:
         user = pyre_auth.sign_in_with_email_and_password(email, password)
 
         return { "token": user["idToken"] }, 200
-    except HTTPError as err:
+    except HTTPError as error:
         # return { "message": "Login Error" }, 400
         response_error = error.args[0].response #If this errors then ignore it. Not sure why it says this is an error in the ide. It does not error when you run it.
 
