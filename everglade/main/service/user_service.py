@@ -338,20 +338,6 @@ def remove_friend(id_token: str, friend_id: str):
 
     return {}, 200
 
-def get_friend_list(user_uid: str, auth_token: str):
-    #Get info from token and validate token
-    try:
-        get_user_from_token(auth_token)['user_id']
-    except:
-        return get_invalid_token_error()
-        
-    database, status = get_user_database(user_uid)
-
-    if 399 < status < 500:
-        return database, status
-
-    return database.child("friends_list").get().val(), 200
-
 def get_user_from_token(id_token: str):
 
     return get_info_from_token(id_token)

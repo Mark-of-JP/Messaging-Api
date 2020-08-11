@@ -12,13 +12,9 @@ def initialize_sockets(socketio):
         print('received message: ' + message)
 
     @socketio.on('connect')
-    def test_connect():
+    def on_connect():
         print('connected')
         emit('confirm', {'data': 'Connection Made'})
-    
-    @socketio.on('marco')
-    def marco(pog):
-        emit('respond', {'data': pog})
 
     @socketio.on('join_chats')
     def join_chats(chats):

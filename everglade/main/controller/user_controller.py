@@ -88,14 +88,6 @@ class FriendRequest(Resource):
         return decline_fr(auth_token, user_uid)
 
 class FriendsList(Resource):
-    def get(self, user_uid):
-        try:
-            auth_token = request.headers['EVERGLADE-USER-TOKEN']
-        except:
-            return get_missing_token_error()
-
-        return get_friend_list(user_uid, auth_token)
-
     def delete(self, user_uid):
         try:
             auth_token = request.headers['EVERGLADE-USER-TOKEN']
