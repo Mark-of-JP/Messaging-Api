@@ -3,7 +3,7 @@ from flask_restful import Resource, Api, reqparse
 
 from everglade.main.constants.error_messages import get_missing_token_error
 
-from everglade.main.service.user_service import get_user_token_info, get_user_info, send_fr, accept_fr, decline_fr, set_user_info, delete_user, remove_friend, get_friend_list, get_users_info, get_user_from_display_name
+from everglade.main.service.user_service import get_user_token_info, get_user_info, send_fr, accept_fr, decline_fr, set_user_info, delete_user, remove_friend, get_users_info, get_user_from_display_name
 
 class TokenUser(Resource):
     def get(self):
